@@ -1,0 +1,10 @@
+<%- include("layout", { body: `
+<section>
+  <h2>All Polls</h2>
+  ${Array.isArray(polls) && polls.length ? `
+    <ul>
+      ${polls.map(p => `<li><a href="/polls/${p._id}">${p.title}</a></li>`).join("")}
+    </ul>
+  ` : `<p>No polls yet. ${user ? '<a href="/polls/new">Create one</a>!' : 'Login to create one.'}</p>`}
+</section>
+` }) %>

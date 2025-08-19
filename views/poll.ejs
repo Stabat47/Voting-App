@@ -1,0 +1,54 @@
+<%- include("layout", { body: `
+<section>
+  ${mode === "create" ? `
+    <h2>Create a Poll</h2>
+    <form action="/polls" method="post">
+      <label>Title</label>
+      <input name="title" required />
+      <label>Options (one per line)</label>
+      <textarea name="options" rows="6" placeholder="Option A\nOption B" required></textarea>
+      <button type="submit">Create</button>
+    </form>
+  ` : `
+    <h2>${poll.title}</h2>
+
+    <form action="/polls/${poll._id}/vote" method="post" style="margin-bottom:1rem;">
+      ${poll.options.map((o, i) => `
+        <div>
+          <label>
+            <input type="radio" name="option" value="${i}" required />
+            ${o.name} — <strong>${o.votes}</strong> votes
+          </label>
+        </div>
+      `).join("")}
+      <button type="submit">Vote</button>
+    </form>
+
+    ${user ? `
+      <form action="/polls/${poll._id}/options" method="post" style="margin-bottom:1rem;">
+        <input name="name" placeholder="Add new option..." />
+        <button type="submit">Add Option</button>
+      </form>
+    ` : ``}
+
+    <canvas id="chart" width="400" height="300"></canvas>
+    <script>
+      const ctx = document.getElementById('chart');
+      const data = {
+        labels: <%- JSON.stringify(poll.options.map(o => o.name)) %>,
+        datasets: [{
+          label: 'Votes',
+          data: <%- JSON.stringify(poll.options.map(o => o.votes)) %>
+        }]
+      };
+      new Chart(ctx, { type: 'bar', data });
+    </script>
+
+    ${user && String(poll.createdBy) === String(user._id) ? `
+      <form action="/polls/${poll._id}/delete" method="post">
+        <button type="submit" style="margin-top:1rem;">Delete Poll</button>
+      </form>
+    ` : ``}
+  `}
+</section>
+` }) %>
